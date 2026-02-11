@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Стратегия Экспансии: Рынки СНГ (KZ, UZ, BY)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: "Silk Road Premium" (Teal/Emerald for Islam/Asia markets, Deep Gold, White) -->
+    <!-- Application Structure:
+         1. Dashboard: Map-based overview of the 3 key markets (Almaty, Tashkent, Minsk).
+         2. Market Deep Dives: Specific tabs for KZ, UZ, BY with "Product-Market Fit" analysis for each.
+             - KZ: Focus on RFMSH/BIL exams.
+             - UZ: Focus on Presidential Schools (The hottest niche).
+             - BY: Focus on Lyceum BSU & Republican Olympiad.
+         3. Pricing & Currency: Calculator converting RUB margin to local currencies and comparing with local elite tutors.
+         4. Marketing: List of specific local channels (Telegram, Instagram influencers).
+    -->
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0FDF9; /* Very light teal tint */
+            color: #064E3B; /* Deep Emerald */
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+        }
+        .flag-icon {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+        .market-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .nav-active {
+            border-bottom: 3px solid #D97706; /* Amber 600 */
+            color: #064E3B;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-teal-800 rounded-full flex items-center justify-center text-white font-bold text-xl font-serif">CIS</div>
+                    <div>
+                        <h1 class="text-xl font-bold text-teal-900 leading-tight">Стратегия: Рынки СНГ</h1>
+                        <p class="text-xs text-teal-600 uppercase tracking-wider">Kazakhstan • Uzbekistan • Belarus</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex space-x-2">
+                    <button onclick="switchTab('overview')" id="nav-overview" class="nav-item px-3 py-2 text-sm font-medium text-gray-500 hover:text-teal-800 transition nav-active">Обзор</button>
+                    <button onclick="switchTab('kazakhstan')" id="nav-kazakhstan" class="nav-item px-3 py-2 text-sm font-medium text-gray-500 hover:text-teal-800 transition">🇰🇿 Казахстан</button>
+                    <button onclick="switchTab('uzbekistan')" id="nav-uzbekistan" class="nav-item px-3 py-2 text-sm font-medium text-gray-500 hover:text-teal-800 transition">🇺🇿 Узбекистан</button>
+                    <button onclick="switchTab('belarus')" id="nav-belarus" class="nav-item px-3 py-2 text-sm font-medium text-gray-500 hover:text-teal-800 transition">🇧🇾 Беларусь</button>
+                    <button onclick="switchTab('pricing')" id="nav-pricing" class="nav-item px-3 py-2 text-sm font-medium text-gray-500 hover:text-teal-800 transition">Цены & Валюты</button>
+                </div>
+                <button class="md:hidden text-teal-800">☰</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- TAB: OVERVIEW -->
+        <div id="tab-overview" class="tab-content block animate-fade-in">
+            <div class="bg-gradient-to-r from-teal-900 to-emerald-800 rounded-2xl shadow-xl p-8 md:p-12 text-white mb-10 relative overflow-hidden">
+                <div class="relative z-10 max-w-3xl">
+                    <h2 class="text-4xl font-serif font-bold mb-4">"Голубые Океаны" Средней Азии</h2>
+                    <p class="text-lg text-emerald-100 mb-6 leading-relaxed">
+                        Рынки РФ перегреты, но в СНГ сейчас бум частного образования. 
+                        В Ташкенте и Алматы родители готовы платить <strong>premium-цену</strong> за русскоязычное образование высокого качества, 
+                        которое открывает двери в социальные лифты (Президентские школы, РФМШ, Лицеи).
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                        <div class="bg-white/10 backdrop-blur-md p-4 rounded-lg border border-white/20">
+                            <div class="text-amber-400 font-bold text-sm uppercase mb-1">🇺🇿 Узбекистан</div>
+                            <div class="text-2xl font-bold">Бум Спроса</div>
+                            <div class="text-xs text-gray-300">Самый быстрорастущий рынок. "Президентские школы" — культ.</div>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-md p-4 rounded-lg border border-white/20">
+                            <div class="text-amber-400 font-bold text-sm uppercase mb-1">🇰🇿 Казахстан</div>
+                            <div class="text-2xl font-bold">Высокий Чек</div>
+                            <div class="text-xs text-gray-300">Платежеспособность в Алматы сопоставима с Москвой.</div>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-md p-4 rounded-lg border border-white/20">
+                            <div class="text-amber-400 font-bold text-sm uppercase mb-1">🇧🇾 Беларусь</div>
+                            <div class="text-2xl font-bold">Качество</div>
+                            <div class="text-xs text-gray-300">Консервативный рынок. Высокие требования к методике.</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Background Map Decoration (CSS only) -->
+                <div class="absolute top-0 right-0 opacity-10 w-96 h-96 bg-amber-400 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
+            </div>
+
+            <!-- Strategic Matrix -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-md border border-teal-100">
+                    <h3 class="text-xl font-bold text-teal-900 mb-4">Матрица Продукта (Адаптация)</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded hover:bg-teal-50 transition">
+                            <span class="font-bold text-gray-600">Вместо ЕГЭ (11 кл)</span>
+                            <span class="text-2xl">➡️</span>
+                            <span class="font-bold text-teal-700 text-right">SAT / Внутренние экзамены ВУЗов</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded hover:bg-teal-50 transition">
+                            <span class="font-bold text-gray-600">Вместо ОГЭ (9 кл)</span>
+                            <span class="text-2xl">➡️</span>
+                            <span class="font-bold text-teal-700 text-right">Экзамены в Лицеи (РФМШ, БИЛ, Лицей БГУ)</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-amber-50 rounded border border-amber-100">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-gray-800">Вместо "Просто Олимпиад"</span>
+                                <span class="text-xs text-gray-500">Для 5-7 классов</span>
+                            </div>
+                            <span class="text-2xl">➡️</span>
+                            <div class="flex flex-col text-right">
+                                <span class="font-bold text-amber-700">Admission Test</span>
+                                <span class="text-xs text-amber-600">В Президентские школы (UZ, KZ)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md border border-teal-100">
+                    <h3 class="text-xl font-bold text-teal-900 mb-4">Объем Рынка (Потенциал)</h3>
+                    <div class="chart-container h-64">
+                        <canvas id="marketVolumeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: KAZAKHSTAN -->
+        <div id="tab-kazakhstan" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-teal-900 font-serif">🇰🇿 Казахстан: Битва за Физмат</h2>
+                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-bold">Зрелый рынок</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="col-span-2 prose max-w-none text-gray-700">
+                    <p class="text-lg">
+                        В Казахстане культ физико-математического образования. Поступление в <strong>РФМШ</strong> (Республиканская Физ-Мат Школа) или <strong>БИЛ</strong> (бывшие КТЛ) — главная цель амбициозных родителей 6-8 классов.
+                    </p>
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-blue-500 shadow-sm my-4">
+                        <h4 class="font-bold text-blue-900">Инсайт для стратегии:</h4>
+                        <p class="text-sm">
+                            Местные олимпиады (Республиканская) котируются выше, чем российские "Перечневые", если ребенок планирует оставаться в KZ. Но "Московские" преподаватели воспринимаются как знак высшего качества.
+                            <strong>Продукт:</strong> "Московская методика для побед в Казахстане".
+                        </p>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mt-4">Конкуренты (Премиум/Ниша):</h3>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>Fizmat.kz (курсы при школе):</strong> Дешево, сердито, огромные группы. Родители жалуются на отсутствие индивидуального подхода.</li>
+                        <li><strong>Skyleng/Umskul (локализации):</strong> Масс-маркет. Не конкуренты в бутиковом сегменте.</li>
+                        <li><strong>Частные репетиторы (Tutor.kz и "сарафан"):</strong> Топ-преподаватели берут от 10 000 до 20 000 тенге/час (2000-4000 руб). Мест нет.</li>
+                    </ul>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="bg-white p-5 rounded-xl shadow-lg border border-gray-100">
+                        <h4 class="font-bold text-gray-800 mb-2">Маркетинг Каналы</h4>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex items-center justify-between">
+                                <span>Instagram (Target)</span>
+                                <span class="text-green-600 font-bold">Высокая эффективность</span>
+                            </li>
+                            <li class="flex items-center justify-between">
+                                <span>Блогеры "Мамы Алматы"</span>
+                                <span class="text-green-600 font-bold">Доверие</span>
+                            </li>
+                            <li class="p-2 bg-gray-50 rounded text-xs text-gray-500 italic">
+                                Ключевые слова: "РФМШ поступление", "Математическая грамотность", "Логика".
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: UZBEKISTAN -->
+        <div id="tab-uzbekistan" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-teal-900 font-serif">🇺🇿 Узбекистан: "Золотая Лихорадка"</h2>
+                <span class="bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm font-bold">Горячий рынок</span>
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-8">
+                <h3 class="text-xl font-bold text-amber-900 mb-2">Главный Драйвер: Президентские Школы</h3>
+                <p class="text-amber-800 mb-4">
+                    Это сеть элитных школ на английском языке, открытых по инициативе президента. Конкурс сумасшедший. Экзамены: <strong>Математика (Логика) + Английский + Критическое мышление</strong>.
+                </p>
+                <div class="flex gap-4">
+                    <div class="bg-white px-4 py-2 rounded shadow-sm text-sm font-bold text-amber-700">Цель: 4-6 классы</div>
+                    <div class="bg-white px-4 py-2 rounded shadow-sm text-sm font-bold text-amber-700">Чек: Высокий</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h4 class="font-bold text-teal-900 mb-3">Конкурентный ландшафт (Ташкент)</h4>
+                    <div class="space-y-3">
+                        <div class="bg-white p-4 rounded shadow-sm border-l-4 border-red-400">
+                            <div class="font-bold">Real Science</div>
+                            <div class="text-xs text-gray-500">Крупный игрок, оффлайн курсы. Сильный бренд, но "поток".</div>
+                        </div>
+                        <div class="bg-white p-4 rounded shadow-sm border-l-4 border-red-400">
+                            <div class="font-bold">Newton Academy</div>
+                            <div class="text-xs text-gray-500">Сеть центров. Масс-маркет премиального уровня.</div>
+                        </div>
+                        <div class="bg-white p-4 rounded shadow-sm border-l-4 border-green-500">
+                            <div class="font-bold">Ниша для вас:</div>
+                            <div class="text-xs text-gray-600">"Бутиковый онлайн-клуб с преподавателями МГУ для поступления в Cambridge/Westminster через олимпиады".</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold text-teal-900 mb-3">Где искать клиентов?</h4>
+                    <ul class="space-y-2 text-sm text-gray-700">
+                        <li><strong>Telegram:</strong> Основной мессенджер страны. Каналы "Образование в Ташкенте", "Потребитель.уз" (посевы).</li>
+                        <li><strong>Facebook:</strong> "Expats in Tashkent", "Mama.uz" — там сидит элита и экспаты.</li>
+                        <li><strong>Сарафан:</strong> В восточной культуре рекомендация "уважаемого человека" (преподавателя из Москвы) работает лучше рекламы.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: BELARUS -->
+        <div id="tab-belarus" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-teal-900 font-serif">🇧🇾 Беларусь: Оплот Классики</h2>
+                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-bold">Сложный рынок</span>
+            </div>
+            
+            <p class="text-gray-700 mb-6">
+                Рынок более консервативный и "бедный" по сравнению с Алматы/Ташкентом, но с очень высокой культурой математического образования. 
+                Здесь сложно продать "дорого" просто за бренд. Нужно доказывать методику.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h3 class="font-bold text-gray-800 mb-3">Точка входа</h3>
+                    <ul class="list-disc pl-5 space-y-2 text-sm text-gray-600">
+                        <li><strong>Лицей БГУ:</strong> Аналог СУНЦ МГУ. Поступление туда — мечта всех технарей.</li>
+                        <li><strong>Республиканская Олимпиада (Рт):</strong> Дает поступление без экзаменов.</li>
+                        <li><strong>Uni Centre (при БГУ):</strong> Основной конкурент. Дешево, качественно.</li>
+                    </ul>
+                    <div class="mt-4 p-3 bg-red-50 text-red-800 text-sm rounded border border-red-100">
+                        <strong>Совет:</strong> В РБ заходите аккуратно. Тут меньше денег в B2C, но высокий спрос на <em>программирование</em> (спортивное программирование).
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h3 class="font-bold text-gray-800 mb-3">Ценовой барьер</h3>
+                    <p class="text-sm text-gray-600 mb-4">
+                        Средняя цена репетитора в Минске: 25-40 BYN (700-1100 RUB). Продать за 2000+ RUB будет сложно, если это не "Олимпиадная подготовка к International Exams".
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: PRICING -->
+        <div id="tab-pricing" class="tab-content hidden">
+            <h2 class="text-3xl font-bold text-teal-900 font-serif mb-6">Калькулятор Цен и Валют</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Calculator -->
+                <div class="lg:col-span-5 bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <h3 class="font-bold text-gray-700 mb-4">Конвертер "Восприятия Цены"</h3>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-600 mb-2">Ваша цена за урок (RUB):</label>
+                        <input type="number" id="basePrice" value="2000" class="w-full p-2 border border-gray-300 rounded text-xl font-bold text-teal-800 focus:ring-2 focus:ring-teal-500 outline-none">
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-blue-50 rounded">
+                            <div class="flex items-center"><span class="flag-icon">🇰🇿</span> <span class="font-bold text-gray-700">Тенге (KZT)</span></div>
+                            <div class="text-xl font-bold text-blue-900" id="val-kzt">...</div>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-amber-50 rounded">
+                            <div class="flex items-center"><span class="flag-icon">🇺🇿</span> <span class="font-bold text-gray-700">Сум (UZS)</span></div>
+                            <div class="text-xl font-bold text-amber-900" id="val-uzs">...</div>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-red-50 rounded">
+                            <div class="flex items-center"><span class="flag-icon">🇧🇾</span> <span class="font-bold text-gray-700">Бел.Руб (BYN)</span></div>
+                            <div class="text-xl font-bold text-red-900" id="val-byn">...</div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-xs text-gray-400 mt-4 text-center">*Курсы валют ориентировочные (1 RUB = 5.2 KZT, 135 UZS, 0.035 BYN)</p>
+                </div>
+
+                <!-- Analysis Text -->
+                <div class="lg:col-span-7">
+                    <h3 class="font-bold text-teal-900 mb-4">Анализ Платежеспособности</h3>
+                    <div class="prose text-sm text-gray-600">
+                        <p class="mb-2"><strong>🇰🇿 Казахстан:</strong> Цена 10 000 - 12 000 KZT за 90 минут в мини-группе воспринимается как "Нормально" для премиум-сегмента Алматы/Астаны. Это уровень хорошего оффлайн-репетитора.</p>
+                        <p class="mb-2"><strong>🇺🇿 Узбекистан:</strong> 250 000 - 300 000 UZS. Это дорого для массового рынка, но для родителей, нацеленных на Вестминстерский университет или зарубеж, это "инвестиция".</p>
+                        <p><strong>🇧🇾 Беларусь:</strong> 60-70 BYN. Это очень дорого. Рынок привык к 30-40 BYN. Рекомендуем демпинговать на старте или предлагать супер-эксклюзив (International Olympiads).</p>
+                    </div>
+                    
+                    <!-- Market Positioning Chart -->
+                    <div class="mt-6 h-48 chart-container">
+                        <canvas id="pricePositionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- Navigation ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('block', 'animate-fade-in');
+            });
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('nav-active'));
+
+            const selectedTab = document.getElementById(`tab-${tabId}`);
+            selectedTab.classList.remove('hidden');
+            selectedTab.classList.add('block', 'animate-fade-in');
+
+            document.getElementById(`nav-${tabId}`)?.classList.add('nav-active');
+
+            // Trigger Charts
+            if(tabId === 'overview') renderOverviewChart();
+            if(tabId === 'pricing') {
+                updateCurrency();
+                renderPriceChart();
+            }
+        }
+
+        // --- Charts ---
+        let overviewChart = null;
+        let priceChart = null;
+
+        function renderOverviewChart() {
+            const ctx = document.getElementById('marketVolumeChart').getContext('2d');
+            if(overviewChart) overviewChart.destroy();
+
+            overviewChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Казахстан (Алматы/Астана)', 'Узбекистан (Ташкент)', 'Беларусь (Минск)'],
+                    datasets: [{
+                        label: 'Потенциал выручки (B2C EdTech)',
+                        data: [85, 95, 40], // Abstract index
+                        backgroundColor: ['#3B82F6', '#F59E0B', '#EF4444'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, display: false } }
+                }
+            });
+        }
+
+        function renderPriceChart() {
+            const ctx = document.getElementById('pricePositionChart').getContext('2d');
+            if(priceChart) priceChart.destroy();
+
+            priceChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Конкуренты',
+                        data: [
+                            {x: 1, y: 1200}, // BY Mass
+                            {x: 1.2, y: 2500}, // Your target BY (Risk)
+                            {x: 2, y: 1500}, // UZ Mass
+                            {x: 2.2, y: 3000}, // Your target UZ (Sweet spot)
+                            {x: 3, y: 2000}, // KZ Mass
+                            {x: 3.2, y: 3500}  // Your target KZ (Safe)
+                        ],
+                        backgroundColor: '#064E3B'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { 
+                            type: 'category', 
+                            labels: ['', 'Беларусь', 'Узбекистан', 'Казахстан'],
+                            offset: true
+                        },
+                        y: { title: {display: true, text: 'Цена за урок (RUB)'} }
+                    }
+                }
+            });
+        }
+
+        // --- Currency Logic ---
+        function updateCurrency() {
+            const rub = parseFloat(document.getElementById('basePrice').value) || 0;
+            
+            // Approx rates (Feb 2026 simulation)
+            const rates = {
+                kzt: 5.2,
+                uzs: 135,
+                byn: 0.035
+            };
+
+            const format = (num) => num.toLocaleString('ru-RU', { maximumFractionDigits: 0 });
+
+            document.getElementById('val-kzt').innerText = format(rub * rates.kzt) + ' ₸';
+            document.getElementById('val-uzs').innerText = format(rub * rates.uzs) + ' UZS';
+            document.getElementById('val-byn').innerText = format(rub * rates.byn) + ' Br';
+        }
+
+        document.getElementById('basePrice').addEventListener('input', updateCurrency);
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('overview');
+        });
+
+    </script>
+</body>
+</html>
